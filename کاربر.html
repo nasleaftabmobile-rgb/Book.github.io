@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>کتابخانه نسل آفتاب — پنل کاربر</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--primary:#7c3aed;--primary-dark:#5b21b6;--primary-deep:#4c1d95;--primary-light:#ede9fe;--accent:#f59e0b;--accent-dark:#b45309;--accent-light:#fef3c7;--teal:#0d9488;--teal-light:#ccfbf1;--rose:#e11d48;--rose-light:#ffe4e6;--ink:#1e1b4b;--muted:#6b7280;--bg:#f8f6ff;--card:#fff;--line:#ede9f6;--input-bg:#fff;--radius:16px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(76,29,149,.06);--shadow-lg:0 18px 40px rgba(76,29,149,.14)}
+body.dark{--ink:#f1f0fa;--muted:#a5a1b8;--bg:#100c18;--card:#1c1626;--line:#2d2438;--input-bg:#16101e;--primary-light:#2d1b5c;--accent-light:#3e2b0d;--teal-light:#0d322e;--rose-light:#3d0f1a}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:"Vazirmatn",Tahoma,sans-serif;line-height:1.65;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+
+.ic{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;flex-shrink:0;vertical-align:middle}
+.ic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic-sm{font-size:16px}.ic-md{font-size:20px}.ic-lg{font-size:24px}.ic-xl{font-size:32px}
+
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.app-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand-logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--primary-deep),var(--primary));display:grid;place-items:center;flex-shrink:0;color:#fbbf24;overflow:hidden}
+.brand-logo img{width:100%;height:100%;object-fit:cover}
+.brand-text h1{margin:0;font-size:.95rem;font-weight:800;line-height:1.3}
+.brand-text p{margin:0;font-size:.72rem;color:var(--muted)}
+.header-actions{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{width:42px;height:42px;border-radius:12px;border:0;background:var(--bg);display:grid;place-items:center;color:var(--ink)}
+.icon-btn.primary{background:var(--primary);color:#fff}
+.icon-btn.danger{background:var(--rose-light);color:var(--rose)}
+
+.app-body{flex:1;display:flex;overflow:hidden;min-height:0}
+.app-sidebar{display:none}
+.app-content{flex:1;overflow-y:auto;padding:14px 14px 20px;min-width:0}
+.page{display:none;animation:fade .2s}
+.page.active{display:block}
+.page[data-admin-hidden="1"]{display:none !important}
+.custom-user-page{display:none}
+.custom-user-page.active{display:block}
+@keyframes fade{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+.page-heading h2{margin:0;font-size:1.15rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.page-heading p{margin:3px 0 0;color:var(--muted);font-size:.82rem}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px}
+.card-title{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:.95rem;font-weight:700}
+.card-title .ic{color:var(--primary)}
+
+.btn{min-height:44px;padding:10px 16px;border-radius:12px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:600;font-size:.88rem;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-ghost{background:var(--bg);border:1px solid var(--line)}
+.btn-danger{background:var(--rose-light);color:var(--rose)}
+.btn-sm{min-height:34px;padding:6px 11px;font-size:.8rem;border-radius:10px}
+.btn-block{width:100%}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row>*{flex:1}
+
+.form-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-grid{grid-template-columns:1fr 1fr}.form-grid .full{grid-column:1/-1}}
+.field{display:grid;gap:6px}
+.field label{font-size:.82rem;font-weight:600}
+.field input,.field select,.field textarea{width:100%;min-height:48px;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--input-bg);outline:0;font-size:.92rem;font-family:inherit}
+.field textarea{min-height:100px;resize:vertical;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
+.form-actions{margin-top:14px}
+.helper{color:var(--muted);font-size:.78rem;margin:6px 0 0}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line)}
+.stat-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--primary-light);margin-bottom:6px;color:var(--primary)}
+.stat-number{font-size:1.3rem;font-weight:800}
+.stat-label{font-size:.75rem;color:var(--muted)}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:.72rem;font-weight:600;white-space:nowrap}
+.badge-green{color:#087857;background:#e4f8ef}
+.badge-orange{color:var(--accent-dark);background:var(--accent-light)}
+.badge-red{color:var(--rose);background:var(--rose-light)}
+.badge-purple{color:var(--primary);background:var(--primary-light)}
+.badge .ic{font-size:12px}
+
+/* Auth */
+.auth-wrap{max-width:480px;margin:16px auto}
+.auth-tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px;margin-bottom:14px}
+.auth-tab{flex:1;padding:10px;border:0;background:transparent;border-radius:9px;font-weight:700;font-size:.88rem;color:var(--muted)}
+.auth-tab.active{background:var(--primary);color:#fff}
+.auth-pane{display:none}
+.auth-pane.active{display:block}
+
+/* Books */
+.books-user-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:520px){.books-user-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:800px){.books-user-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+.book-user-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.book-cover{width:100%;aspect-ratio:3/4;object-fit:cover;background:linear-gradient(135deg,var(--primary-light),var(--accent-light));display:grid;place-items:center;color:var(--primary);position:relative}
+.book-cover img{width:100%;height:100%;object-fit:cover}
+.book-cover .cover-ph{font-size:44px;opacity:.7}
+.book-user-body{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1}
+.book-user-body h4{margin:0;font-size:.88rem;font-weight:700;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.4em}
+.book-user-body .cat{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.book-user-body .actions{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
+.book-user-body .actions .btn{flex:1;min-width:0;font-size:.76rem;padding:7px 6px;min-height:34px}
+.book-user-body .actions .btn .ic{font-size:14px}
+
+.search-box{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--input-bg);outline:0;font-size:.9rem;font-family:inherit}
+.search-box:focus{border-color:var(--primary)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{padding:6px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);font-size:.8rem;font-weight:600;color:var(--muted)}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.loan-user-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.loan-user-thumb{width:54px;height:72px;border-radius:8px;flex-shrink:0;object-fit:cover;background:var(--primary-light);display:grid;place-items:center;color:var(--primary)}
+.loan-user-info{flex:1;min-width:0}
+.loan-user-info h4{margin:0 0 2px;font-size:.9rem}
+.loan-user-info .meta{font-size:.74rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.loan-user-info .code{font-family:monospace;background:var(--bg);padding:1px 6px;border-radius:5px;font-size:.7rem}
+
+.qa-item{padding:10px 0;border-bottom:1px solid var(--line)}
+.qa-item:last-child{border-bottom:0}
+.qa-q{font-weight:600;margin-bottom:2px}
+.qa-meta{font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.qa-answer{margin-top:6px;padding:8px 10px;background:var(--teal-light);border-radius:8px;font-size:.82rem}
+.qa-pending{padding:8px 10px;background:var(--accent-light);border-radius:8px;font-size:.78rem;color:var(--accent-dark);display:inline-flex;align-items:center;gap:4px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translate(-50%,20px);z-index:200;padding:11px 18px;border-radius:14px;background:var(--ink);color:#fff;font-size:.85rem;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 40px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.bottom-nav{flex-shrink:0;display:flex;overflow-x:auto;gap:4px;padding:6px 8px;background:var(--card);border-top:1px solid var(--line);z-index:10;scrollbar-width:thin}
+.nav-item{flex:0 0 72px;min-height:58px;border-radius:12px;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.68rem;font-weight:600;padding:6px 4px}
+.nav-item .ic{font-size:20px}
+.nav-item.active{color:var(--primary);background:var(--primary-light)}
+
+.modal-backdrop{position:fixed;inset:0;z-index:150;background:rgba(20,15,40,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop[hidden]{display:none}
+.modal-box{width:100%;max-width:520px;padding:24px;background:var(--card);border-radius:var(--radius-lg);max-height:90vh;overflow-y:auto;position:relative}
+.modal-box h3{margin:0 0 6px;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.modal-close{position:absolute;top:10px;left:10px;width:36px;height:36px;border-radius:10px;border:0;background:var(--bg);display:grid;place-items:center;color:var(--ink)}
+.book-details-box{max-width:620px}.book-details-cover{width:112px;height:148px;object-fit:cover;border-radius:12px;background:var(--primary-light);flex-shrink:0}.book-details-layout{display:flex;gap:16px;align-items:flex-start;margin:16px 0}.book-details-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}.book-details-meta>div{background:var(--bg);border-radius:10px;padding:9px;font-size:.82rem}.book-details-description{white-space:pre-wrap;line-height:1.9;background:var(--bg);border-radius:12px;padding:12px;font-size:.88rem}.book-details-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.book-details-actions .btn{flex:1}.pdf-modal-box{max-width:900px}
+.pdf-frame{width:100%;height:70vh;border:0;border-radius:10px;background:var(--bg);margin-top:10px}
+
+/* ===== Library card ===== */
+.library-card-wrap{max-width:380px;margin:0 auto}
+.library-card{position:relative;width:100%;aspect-ratio:1.6/1;border-radius:18px;padding:16px 18px;background:linear-gradient(135deg,#3b1179 0%,#6d28d9 45%,#a855f7 100%);color:#fff;overflow:hidden;box-shadow:0 12px 32px rgba(76,29,149,.4),inset 0 0 0 1px rgba(255,255,255,.12);font-family:"Vazirmatn",Tahoma,sans-serif;direction:rtl;isolation:isolate}
+.library-card::before{content:'';position:absolute;top:-40%;left:-20%;width:85%;height:180%;background:radial-gradient(circle,rgba(255,255,255,.18) 0%,transparent 55%);pointer-events:none;z-index:-1}
+.library-card::after{content:'';position:absolute;bottom:-40%;right:-15%;width:70%;height:140%;background:radial-gradient(circle,rgba(251,191,36,.28) 0%,transparent 55%);pointer-events:none;z-index:-1}
+.lc-header{display:flex;align-items:center;gap:10px;position:relative;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.22);margin-bottom:12px}
+.lc-logo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fbbf24;flex-shrink:0;overflow:hidden}
+.lc-logo img{width:100%;height:100%;object-fit:cover}
+.lc-title{flex:1;min-width:0}
+.lc-title .t1{font-weight:800;font-size:.92rem;line-height:1.2}
+.lc-title .t2{font-size:.68rem;opacity:.85;margin-top:1px}
+.lc-body{display:flex;align-items:center;gap:12px;position:relative}
+.lc-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#4c1d95;display:grid;place-items:center;font-weight:800;font-size:1.45rem;flex-shrink:0;border:2px solid rgba(255,255,255,.45);box-shadow:0 4px 10px rgba(0,0,0,.15);overflow:hidden}
+.lc-avatar img{width:100%;height:100%;object-fit:cover}
+.lc-info{flex:1;min-width:0}
+.lc-name{font-weight:800;font-size:1.02rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-id{font-size:.72rem;opacity:.92;font-family:monospace;letter-spacing:.5px;margin-top:3px;direction:ltr;text-align:right}
+.lc-class{font-size:.72rem;opacity:.85;margin-top:2px}
+.lc-footer{display:flex;justify-content:space-between;align-items:flex-end;position:relative;margin-top:12px;font-size:.66rem;opacity:.88;gap:10px}
+.lc-footer .lc-since{display:flex;align-items:center;gap:4px}
+.lc-barcode{height:20px;width:88px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 9px,#fff 9px 12px,transparent 12px 15px);opacity:.78;border-radius:2px;flex-shrink:0}
+
+/* ===== Profile avatar ===== */
+.profile-avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:14px}
+.profile-avatar{position:relative;width:92px;height:92px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;color:#fff;font-size:2.2rem;font-weight:800;overflow:hidden;box-shadow:0 6px 18px rgba(76,29,149,.25)}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-avatar .avatar-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;display:grid;place-items:center;color:#fff;cursor:pointer;transition:.2s}
+.profile-avatar:hover .avatar-edit-overlay{opacity:1}
+.profile-avatar .avatar-edit-overlay .ic{font-size:26px}
+.profile-avatar-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.profile-avatar-actions .btn{min-height:32px;font-size:.78rem;padding:6px 12px}
+
+@media(min-width:900px){
+  .app-body{display:grid;grid-template-columns:230px minmax(0,1fr);overflow:hidden}
+  .app-sidebar{display:flex;flex-direction:column;gap:3px;padding:16px 12px;background:var(--card);border-inline-end:1px solid var(--line);overflow-y:auto}
+  .app-content{padding:24px 28px 32px}
+  .bottom-nav{display:none !important}
+  .side-nav-btn{width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:.9rem;text-align:right;display:flex;align-items:center;gap:10px;font-weight:600}
+  .side-nav-btn .ic{font-size:18px}
+  .side-nav-btn.active{background:var(--primary);color:#fff}
+  .side-nav-section{font-size:.68rem;font-weight:800;color:var(--muted);padding:14px 12px 6px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo" id="brandLogo"><span class="ic ic-lg" data-icon="book"></span></div>
+      <div class="brand-text"><h1>کتابخانه نسل آفتاب</h1><p id="userGreeting">در حال بارگذاری...</p></div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" title="تاریک/روشن"></button>
+      <button class="icon-btn primary" id="loginToggle" title="ورود"></button>
+      <button class="icon-btn danger" id="logoutBtn" title="خروج" style="display:none;"></button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="app-sidebar" id="appSidebar"></aside>
+    <main class="app-content" id="appContent">
+
+      <section class="page active" id="page-login">
+        <div class="auth-wrap">
+          <div class="page-heading"><div><h2>ورود به حساب</h2><p>با نام یا ایمیل خود وارد شوید</p></div></div>
+          <div class="card">
+            <div class="auth-tabs">
+              <button class="auth-tab active" data-tab="login" type="button">ورود</button>
+              <button class="auth-tab" data-tab="register" type="button">ثبت‌نام</button>
+            </div>
+            <div class="auth-pane active" id="pane-login">
+              <form id="loginForm">
+                <div class="form-grid">
+                  <div class="field full"><label>نام یا ایمیل</label><input type="text" id="loginIdentifier" required placeholder="مثلاً علی رضایی یا ali@mail.com"></div>
+                  <div class="field full"><label>رمز عبور</label><input type="password" id="loginPassword" required></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-primary btn-block">ورود</button></div>
+              </form>
+            </div>
+            <div class="auth-pane" id="pane-register">
+              <form id="registerForm">
+                <div class="form-grid">
+                  <div class="field full"><label>نام و نام خانوادگی</label><input id="regName" required minlength="2" maxlength="80" placeholder="مثلاً علی رضایی"></div>
+                  <div class="field full"><label>ایمیل (اختیاری)</label><input id="regEmail" type="email" placeholder="ali@mail.com"></div>
+                  <div class="field full"><label>کلاس (اختیاری)</label><input id="regClass" maxlength="40" placeholder="مثلاً ۹/۱"></div>
+                  <div class="field full"><label>رمز عبور (حداقل ۴ کاراکتر)</label><input id="regPassword" type="password" required minlength="4"></div>
+                  <div class="field full"><label>تکرار رمز</label><input id="regPassword2" type="password" required minlength="4"></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-teal btn-block">ساخت حساب</button></div>
+                <p class="helper">با ثبت‌نام، شرایط استفاده از کتابخانه را می‌پذیرید.</p>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="ic ic-sm" data-icon="link"></span> وضعیت اتصال</div>
+            <p class="helper" style="margin-top:0;" id="connStatus">در حال بررسی...</p>
+            <button class="btn btn-ghost btn-block" type="button" onclick="refreshDB()"><span class="ic ic-sm" data-icon="refresh"></span> بارگذاری مجدد از سرور</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-home">
+        <div class="page-heading">
+          <div><h2>خوش آمدید 👋</h2><p id="homeSubtitle">کتابخانه نسل آفتاب</p></div>
+          <button class="btn btn-teal btn-sm" onclick="refreshDB()"><span class="ic ic-sm" data-icon="refresh"></span> بروزرسانی</button>
+        </div>
+        <div class="stats-grid" id="userStats"></div>
+        <div class="page-heading" style="margin-top:20px;"><div><h2><span class="ic ic-md" style="color:var(--accent-dark)"></span> پرطرفدارترین‌ها</h2><p>بر اساس بیشترین امانت</p></div></div>
+        <div class="books-user-grid" id="popularBooksUser"></div>
+      </section>
+
+      <section class="page" id="page-books">
+        <div class="page-heading">
+          <div><h2><span class="ic ic-md" data-icon="book"></span> کتاب‌ها</h2><p>جستجو، مشاهده و امانت</p></div>
+        </div>
+        <div class="card" style="padding:10px;margin-bottom:10px;">
+          <input type="text" id="bookSearchInput" class="search-box" placeholder="جستجوی عنوان، دسته یا اهدایی..." oninput="renderBooks()">
+          <div class="chips" id="categoryChips"></div>
+        </div>
+        <div class="books-user-grid" id="booksUser"></div>
+      </section>
+
+      <section class="page" id="page-myloans">
+        <div class="page-heading">
+          <div><h2><span class="ic ic-md" data-icon="refresh"></span> امانت‌های من</h2><p>پیگیری و بازگرداندن</p></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="clock"></span> امانت‌های فعال</div>
+          <div id="activeLoansBox"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="check"></span> تاریخچه بازگشتی</div>
+          <div id="historyLoansBox"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-questions">
+        <div class="page-heading"><div><h2><span class="ic ic-md" data-icon="message"></span> پرسش و پاسخ</h2><p>سوالات خود را با کتابدار در میان بگذارید</p></div></div>
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="plus"></span> پرسش جدید</div>
+          <form id="questionForm">
+            <div class="field full"><label>سوال شما</label><textarea id="questionText" required maxlength="500" placeholder="مثلاً: آیا کتاب «شازده کوچولو» موجود است؟"></textarea></div>
+            <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">ارسال پرسش</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="list"></span> پرسش‌های من</div>
+          <div id="myQuestionsBox"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-messages">
+        <div class="page-heading"><div><h2><span class="ic ic-md" data-icon="mail"></span> پیام به مدیر</h2><p>پیشنهاد، انتقاد یا درخواست</p></div></div>
+        <div class="card">
+          <form id="messageForm">
+            <div class="form-grid">
+              <div class="field full"><label>نوع پیام</label>
+                <select id="messageType">
+                  <option value="پیشنهاد">پیشنهاد</option>
+                  <option value="انتقاد">انتقاد</option>
+                  <option value="درخواست">درخواست</option>
+                  <option value="گزارش">گزارش</option>
+                </select>
+              </div>
+              <div class="field full"><label>متن پیام</label><textarea id="messageText" required maxlength="1000" placeholder="متن پیام شما..."></textarea></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">ارسال</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="list"></span> پیام‌های من</div>
+          <div id="myMessagesBox"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-profile">
+        <div class="page-heading"><div><h2><span class="ic ic-md" data-icon="users"></span> پروفایل من</h2><p>اطلاعات حساب</p></div></div>
+
+        <div class="card" id="profileCard"></div>
+
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="crown"></span> کارت عضویت کتابخانه</div>
+          <div class="library-card-wrap">
+            <div class="library-card" id="libraryCard"></div>
+          </div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn btn-primary btn-block" onclick="downloadLibraryCard()">
+              <span class="ic ic-sm" data-icon="download"></span> دانلود کارت
+            </button>
+          </div>
+          <p class="helper" style="text-align:center;">کارت را می‌توانید ذخیره، چاپ یا در گوشی خود نگه دارید.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="ic ic-sm" data-icon="settings"></span> تغییر رمز عبور</div>
+          <form id="changePasswordForm">
+            <div class="form-grid">
+              <div class="field full"><label>رمز فعلی</label><input type="password" id="oldPassword" required></div>
+              <div class="field full"><label>رمز جدید (حداقل ۴)</label><input type="password" id="newPassword" required minlength="4"></div>
+              <div class="field full"><label>تکرار رمز جدید</label><input type="password" id="newPassword2" required minlength="4"></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">تغییر رمز</button></div>
+          </form>
+        </div>
+      </section>
+
+      <div id="customUserPagesMount"></div>
+
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div class="modal-backdrop" id="bookDetailsModal" hidden onclick="if(event.target===this) closeBookDetails()">
+  <div class="modal-box book-details-box">
+    <button class="modal-close" onclick="closeBookDetails()"><span class="ic ic-md" data-icon="x"></span></button>
+    <div id="bookDetailsContent"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="pdfModal" hidden>
+  <div class="modal-box pdf-modal-box">
+    <button class="modal-close" onclick="closePDFReader()"><span class="ic ic-md" data-icon="x"></span></button>
+    <h3 id="pdfModalTitle"><span class="ic ic-md" data-icon="pdf"></span> مطالعه کتاب</h3>
+    <iframe id="pdfFrame" class="pdf-frame" src="about:blank"></iframe>
+    <a id="pdfOpenLink" class="btn btn-primary btn-block" style="margin-top:10px;" target="_blank" rel="noopener">باز کردن در تب جدید</a>
+  </div>
+</div>
+
+<input type="file" id="avatarFile" accept="image/*" style="display:none;">
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Icons
+   ============================================================ */
+const ICONS_RAW = {
+  book:'<path d="M4 4a2 2 0 0 1 2-2h13v20H6a2 2 0 0 1-2-2V4z"/><path d="M8 7h7M8 11h7M8 15h4"/>',
+  home:'<path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1v-9.5z"/>',
+  refresh:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  users:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M16 3.1a4 4 0 0 1 0 7.8M22 21a6 6 0 0 0-3-5.2"/>',
+  folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>',
+  mail:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="m2 7 10 6 10-6"/>',
+  message:'<path d="M21 12a8 8 0 1 1-3.2-6.4L21 4v8z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+  trash:'<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
+  crown:'<path d="M2 18h20l-2-9-4 3-4-6-4 6-4-3z"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  check:'<path d="m4 12 5 5L20 6"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+  pdf:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 18h4"/>',
+  gift:'<path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7a3 3 0 1 0-3-3c0 2 3 3 3 3zM12 7a3 3 0 1 1 3-3c0 2-3 3-3 3z"/>',
+  tag:'<path d="M3 11V4a1 1 0 0 1 1-1h7l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  package:'<path d="m12 2 9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v5"/>',
+  fire:'<path d="M12 22c4.4 0 8-3.6 8-8 0-3-1.5-5.5-3-7 0 2-1 3.5-2.5 4.5C14 9 13 7 12 5c-1 2-2 4-2 6-1.5-1-2.5-2.5-2.5-4.5C6 8 4 10.5 4 14c0 4.4 3.6 8 8 8z"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+  camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z"/><circle cx="12" cy="13" r="4"/>'
+};
+const ICONS = {};
+for (const k in ICONS_RAW) ICONS[k] = `<svg viewBox="0 0 24 24">${ICONS_RAW[k]}</svg>`;
+function icon(name, cls="ic-sm"){ return `<span class="ic ${cls}">${ICONS[name]||""}</span>`; }
+function injectStaticIcons(){ document.querySelectorAll("[data-icon]").forEach(el=>{ el.innerHTML = ICONS[el.getAttribute("data-icon")] || ""; }); }
+
+/* ============================================================
+   Supabase Config
+   ============================================================ */
+const SUPABASE_URL = "https://rcoqkgpjbveujrqaxfpe.supabase.co";
+const SUPABASE_KEY = "sb_publishable_TagBeHjG_ShZA7qQnKBDTQ_a36XdO-L";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DB_CACHE    = "naslAdminDB_v1";
+const SESSION_KEY = "naslReaderSession";
+
+let db = null;
+let saveQueue = Promise.resolve();
+let currentUser = null;
+let currentPage = "home";
+let activeCategory = "";
+let toastTimer;
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const makeId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function formatDate(iso){ if(!iso) return "—"; try{ return new Intl.DateTimeFormat("fa-IR",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso)); }catch(e){ return "—"; } }
+function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200); }
+async function hashPassword(pw){ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw)); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join(""); }
+
+/* resize image before upload */
+async function resizeImage(file, maxDim=400, quality=0.85){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+        const c = document.createElement("canvas");
+        c.width = width; c.height = height;
+        c.getContext("2d").drawImage(img, 0, 0, width, height);
+        res(c.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = rej;
+      img.src = e.target.result;
+    };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function memberCode(u){
+  const raw = (u?.id || "").replace(/[^a-z0-9]/gi,"").toUpperCase();
+  const tail = (raw.slice(-6) || "000000").padStart(6, "0");
+  return "NL-" + tail;
+}
+
+/* ============================================================
+   Supabase upload helpers
+   ============================================================ */
+async function uploadAvatar(base64, filename){
+  const blob = await (await fetch(base64)).blob();
+  const { error } = await supabaseClient.storage.from('library').upload(filename, blob, { upsert: true, contentType: "image/jpeg" });
+  if (error) throw new Error("خطا در آپلود عکس: " + error.message);
+  const { data: urlData } = supabaseClient.storage.from('library').getPublicUrl(filename);
+  return urlData.publicUrl;
+}
+
+/* ============================================================
+   DB Load / Save
+   ============================================================ */
+async function loadDB(){
+  try {
+    const { data, error } = await supabaseClient.from('app_state').select('data').eq('id', 1).single();
+    if (error && error.code !== 'PGRST116') throw error;
+    if (data && data.data) {
+      const parsed = data.data;
+      if (!parsed.questions) parsed.questions = [];
+      if (!parsed.requests) parsed.requests = [];
+      if (!parsed.users) parsed.users = [];
+      if (!parsed.settings) parsed.settings = {};
+      db = parsed;
+      localStorage.setItem(DB_CACHE, JSON.stringify(db));
+    } else {
+      db = { users: [], books: [], loans: [], categories: [], requests: [], questions: [], customPages: [], settings: {} };
+    }
+    return db;
+  } catch(e) {
+    console.warn("Load failed:", e);
+    const cached = localStorage.getItem(DB_CACHE);
+    if (cached) { db = JSON.parse(cached); return db; }
+    db = { users: [], books: [], loans: [], categories: [], requests: [], questions: [], customPages: [], settings: {} };
+    return db;
+  }
+}
+async function saveDB(){
+  if (!db) return;
+  saveQueue = saveQueue.catch(()=>{}).then(async ()=>{
+    localStorage.setItem(DB_CACHE, JSON.stringify(db));
+    const { error } = await supabaseClient.from('app_state').upsert({ id: 1, data: db });
+    if (error) throw error;
+  });
+  return saveQueue;
+}
+async function refreshDB(){
+  showToast("در حال بروزرسانی از سرور...");
+  try { await loadDB(); renderAll(); showToast("بروزرسانی شد."); }
+  catch(e){ showToast("خطا: " + e.message); }
+}
+
+/* ============================================================
+   Auth (reader)
+   ============================================================ */
+async function loginReader(identifier, password){
+  const id = identifier.trim();
+  const user = id.includes("@")
+    ? db.users.find(u => u.email === id)
+    : db.users.find(u => u.name === id);
+  if (!user) return { success:false, message:"کاربر یافت نشد" };
+  if (user.blocked) return { success:false, message:"حساب شما مسدود شده است — با مدیر تماس بگیرید." };
+  if (user.role !== "reader") return { success:false, message:"این حساب خواننده نیست" };
+
+  const stored = user.password || "";
+  if (!/^[a-f0-9]{64}$/.test(stored)) {
+    if (stored === password) {
+      user.password = await hashPassword(password);
+      try { await saveDB(); } catch(e){ console.warn(e); }
+      return { success:true, user };
+    }
+    return { success:false, message:"رمز اشتباه است" };
+  }
+  const h = await hashPassword(password);
+  if (h !== stored) return { success:false, message:"رمز اشتباه است" };
+  return { success:true, user };
+}
+
+async function registerReader(name, email, className, password){
+  name = name.trim(); email = (email||"").trim(); className = (className||"").trim();
+  if (name.length < 2) return { success:false, message:"نام نامعتبر است" };
+  if (password.length < 4) return { success:false, message:"رمز حداقل ۴ کاراکتر باشد" };
+  if (db.users.some(u => u.name === name)) return { success:false, message:"این نام قبلاً ثبت شده است" };
+  if (email && db.users.some(u => u.email === email)) return { success:false, message:"این ایمیل قبلاً ثبت شده است" };
+
+  const newUser = {
+    id: "u_" + makeId(),
+    name, email, class: className,
+    role: "reader",
+    password: await hashPassword(password),
+    blocked: false,
+    createdAt: new Date().toISOString(),
+    avatarUrl: ""
+  };
+  db.users.push(newUser);
+  try { await saveDB(); }
+  catch(e){ db.users = db.users.filter(u => u.id !== newUser.id); return { success:false, message:"خطا در ذخیره: " + e.message }; }
+  return { success:true, user:newUser };
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+function getUserPageSettings(){ return db?.settings || {}; }
+function getUserNavItems(){
+  const s=getUserPageSettings();
+  const base=[
+    {page:"home",icon:"home",label:"خانه",show:s.userShowHome!==false},
+    {page:"books",icon:"book",label:s.userNavBooks||"کتاب‌ها",show:s.userShowBooks!==false},
+    {page:"myloans",icon:"refresh",label:s.userNavLoans||"امانت‌ها",show:s.userShowLoans!==false},
+    {page:"questions",icon:"message",label:s.userNavQuestions||"پرسش",show:s.userShowQuestions!==false},
+    {page:"messages",icon:"mail",label:s.userNavMessages||"پیام‌ها",show:s.userShowMessages!==false},
+    {page:"profile",icon:"users",label:s.userNavProfile||"پروفایل",show:s.userShowProfile!==false}
+  ].filter(x=>x.show);
+  const extras=(db?.customPages||[]).map(p=>({page:"custom-"+p.id,icon:"folder",label:p.title,show:true,custom:true,id:p.id}));
+  return [...base,...extras];
+}
+function buildSidebar(){
+  const el = document.getElementById("appSidebar");
+  const items=getUserNavItems();
+  el.innerHTML = `<div class="side-nav-section">کتابخانه</div>` +
+    items.map(n => `<button class="side-nav-btn" data-page="${n.page}">${icon(n.icon,"ic-sm")} <span>${esc(n.label)}</span></button>`).join("");
+  el.querySelectorAll(".side-nav-btn").forEach(b => b.onclick = () => goTo(b.dataset.page));
+  updateNavActive();
+}
+function buildBottomNav(){
+  const nav = document.getElementById("bottomNav");
+  const items = getUserNavItems();
+  nav.innerHTML = items.map(n => `<button class="nav-item" data-page="${n.page}">${icon(n.icon,"ic-md")}<span>${esc(n.label)}</span></button>`).join("");
+  nav.querySelectorAll(".nav-item").forEach(b => b.onclick = () => goTo(b.dataset.page));
+  updateNavActive();
+}
+function updateNavActive(){
+  document.querySelectorAll(".side-nav-btn").forEach(b => b.classList.toggle("active", b.dataset.page === currentPage));
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.page === currentPage));
+}
+function goTo(page){
+  if(String(page).startsWith("custom-")) renderCustomUserPage(String(page).slice(7));
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === `page-${page}`));
+  document.querySelectorAll(".custom-user-page").forEach(p => p.classList.toggle("active", p.id === `page-${page}`));
+  currentPage = page;
+  updateNavActive();
+  document.getElementById("appContent").scrollTop = 0;
+}
+
+/* ============================================================
+   Helpers for book/loan
+   ============================================================ */
+function getAvailable(b){ return (b.copies||[]).filter(c => c.status === "available"); }
+function getTotal(b){ return (b.copies||[]).length; }
+function loanCount(bookId){ return db.loans.filter(l => l.bookId === bookId).length; }
+function myLoans(){ return db.loans.filter(l => l.member === currentUser?.name); }
+function myActiveLoans(){ return myLoans().filter(l => l.status === "active"); }
+function myHistoryLoans(){ return myLoans().filter(l => l.status === "returned"); }
+
+
+/* ============================================================
+   Admin-configured user page sections and custom HTML pages
+   ============================================================ */
+function applyUserPageSettings(){
+  const s=db?.settings||{};
+  const title=s.userPageTitle||"کتابخانه نسل آفتاب";
+  document.title=title+" — پنل کاربر";
+  const h=document.querySelector(".brand-text h1");
+  if(h) h.textContent=title;
+  const welcome=s.userPageWelcome||"کتابخانه نسل آفتاب";
+  const sub=document.getElementById("homeSubtitle");
+  if(sub && !currentUser) sub.textContent=welcome;
+  const visibility={
+    home:s.userShowHome!==false, books:s.userShowBooks!==false,
+    myloans:s.userShowLoans!==false, questions:s.userShowQuestions!==false,
+    messages:s.userShowMessages!==false, profile:s.userShowProfile!==false
+  };
+  Object.entries(visibility).forEach(([id,show])=>{
+    const el=document.getElementById("page-"+id);
+    if(el) el.dataset.adminHidden=show?"0":"1";
+  });
+  if(visibility[currentPage]===false) {
+    const firstVisible=Object.keys(visibility).find(key=>visibility[key]) || "books";
+    goTo(firstVisible);
+  }
+}
+function renderCustomUserPage(id){
+  const page=(db?.customPages||[]).find(p=>p.id===id);
+  const mount=document.getElementById("customUserPagesMount");
+  if(!page || !mount) return;
+  let section=document.getElementById("page-custom-"+id);
+  if(!section){
+    section=document.createElement("section");
+    section.className="page custom-user-page";
+    section.id="page-custom-"+id;
+    mount.appendChild(section);
+  }
+  section.innerHTML=`<div class="page-heading"><div><h2>${esc(page.title)}</h2><p>صفحه افزوده‌شده توسط کتابخانه</p></div></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <iframe title="${esc(page.title)}" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer"
+        style="display:block;width:100%;height:min(75vh,850px);border:0;background:white;"></iframe>
+    </div>`;
+  section.querySelector("iframe").srcdoc=page.html||"";
+}
+/* ============================================================
+   Renders
+   ============================================================ */
+function renderAll(){
+  if (!db) return;
+  renderStats();
+  renderPopular();
+  renderBooks();
+  renderCategoryChips();
+  renderMyLoans();
+  renderMyQuestions();
+  renderMyMessages();
+  renderProfile();
+  renderLibraryCard();
+  updateBrandAvatar();
+  updateHomeSubtitle();
+  applyUserPageSettings();
+  if(currentUser){ buildSidebar(); buildBottomNav(); }
+}
+
+function updateHomeSubtitle(){
+  const el = document.getElementById("homeSubtitle");
+  if (el) el.textContent = currentUser ? `${currentUser.name} — خوش آمدید` : (db?.settings?.userPageWelcome || "کتابخانه نسل آفتاب");
+}
+
+/* هدر: عکس پروفایل به جای لوگو */
+function updateBrandAvatar(){
+  const el = document.getElementById("brandLogo");
+  if (!el) return;
+  if (currentUser?.avatarUrl) {
+    el.innerHTML = `<img src="${esc(currentUser.avatarUrl)}" alt="">`;
+  } else {
+    el.innerHTML = `<span class="ic ic-lg" data-icon="book"></span>`;
+    injectStaticIcons();
+  }
+}
+
+function renderStats(){
+  const el = document.getElementById("userStats");
+  if (!el) return;
+  const available = db.books.reduce((s,b)=>s+getAvailable(b).length,0);
+  const myActive = myActiveLoans().length;
+  const myAll = myLoans().length;
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-icon">${icon("package","ic-md")}</div><div class="stat-number">${available}</div><div class="stat-label">نسخه موجود</div></div>
+    <div class="stat-card"><div class="stat-icon">${icon("book","ic-md")}</div><div class="stat-number">${db.books.length}</div><div class="stat-label">عنوان کتاب</div></div>
+    <div class="stat-card"><div class="stat-icon">${icon("clock","ic-md")}</div><div class="stat-number">${myActive}</div><div class="stat-label">امانت فعال من</div></div>
+    <div class="stat-card"><div class="stat-icon">${icon("check","ic-md")}</div><div class="stat-number">${myAll}</div><div class="stat-label">کل امانت من</div></div>`;
+}
+
+function bookCoverHTML(b, size="cover"){
+  if (b.image) return `<img class="${size==='cover'?'book-cover':'loan-user-thumb'}" src="${esc(b.image)}" alt="">`;
+  return `<div class="${size==='cover'?'book-cover':'loan-user-thumb'}"><span class="cover-ph">${icon("book", size==='cover'?'ic-xl':'ic-lg')}</span></div>`;
+}
+
+function renderPopular(){
+  const el = document.getElementById("popularBooksUser");
+  if (!el) return;
+  const sorted = [...db.books].map(b => ({ ...b, n: loanCount(b.id) })).sort((a,b)=>b.n-a.n).slice(0,8);
+  const list = sorted.filter(b => b.n > 0);
+  if (!list.length) { el.innerHTML = `<div class="card" style="grid-column:1/-1;"><p class="helper" style="margin:0;">هنوز امانتی ثبت نشده است.</p></div>`; return; }
+  el.innerHTML = list.map(b => {
+    const avail = getAvailable(b).length;
+    return `<div class="book-user-card" role="button" tabindex="0" onclick="openBookDetails('${b.id}')" onkeydown="if(event.key==='Enter')openBookDetails('${b.id}')">
+      ${bookCoverHTML(b,'cover')}
+      <div class="book-user-body">
+        <h4>${esc(b.title)}</h4>
+        <div class="cat">${icon("tag","ic-sm")} ${esc(b.category||"—")}</div>
+        <div class="badge badge-purple">${icon("fire","ic-sm")} ${b.n} امانت</div>
+        <div class="actions">
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();borrowBook('${b.id}')" ${avail>0?'':'disabled'}>
+            ${icon("gift","ic-sm")} امانت
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderCategoryChips(){
+  const el = document.getElementById("categoryChips");
+  if (!el) return;
+  const cats = ["", ...db.categories.map(c=>c.name)];
+  el.innerHTML = cats.map(name => `
+    <button class="chip ${activeCategory===name?'active':''}" onclick="filterCategory('${esc(name)}')">
+      ${name ? esc(name) : 'همه'}
+    </button>`).join("");
+}
+window.filterCategory = (name) => { activeCategory = name; renderCategoryChips(); renderBooks(); };
+
+function renderBooks(){
+  const el = document.getElementById("booksUser");
+  if (!el) return;
+  const q = (document.getElementById("bookSearchInput")?.value || "").trim().toLowerCase();
+  let list = [...db.books];
+  if (activeCategory) list = list.filter(b => (b.category||"") === activeCategory);
+  if (q) list = list.filter(b =>
+    (b.title||"").toLowerCase().includes(q) ||
+    (b.category||"").toLowerCase().includes(q) ||
+    (b.donor||"").toLowerCase().includes(q));
+  if (!list.length) {
+    el.innerHTML = `<div class="card" style="grid-column:1/-1;"><p class="helper" style="margin:0;">کتابی با این مشخصات یافت نشد.</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(b => {
+    const avail = getAvailable(b).length;
+    const total = getTotal(b);
+    const alreadyMine = myActiveLoans().some(l => l.bookId === b.id);
+    const borrowDisabled = avail===0 || alreadyMine;
+    let borrowLabel = "امانت";
+    if (alreadyMine) borrowLabel = "در امانت شما";
+    else if (avail === 0) borrowLabel = "ناموجود";
+    return `<div class="book-user-card" role="button" tabindex="0" onclick="openBookDetails('${b.id}')" onkeydown="if(event.key==='Enter')openBookDetails('${b.id}')">
+      ${bookCoverHTML(b,'cover')}
+      <div class="book-user-body">
+        <h4>${esc(b.title)}</h4>
+        <div class="cat">${icon("tag","ic-sm")} ${esc(b.category||"—")}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <span class="badge ${avail>0?'badge-green':'badge-red'}">${avail}/${total} موجود</span>
+          ${b.pdfUrl ? `<span class="badge badge-purple">${icon("pdf","ic-sm")} PDF</span>` : ``}
+        </div>
+        <div class="actions">
+          <button class="btn ${alreadyMine?'btn-ghost':'btn-primary'} btn-sm" onclick="event.stopPropagation();borrowBook('${b.id}')" ${borrowDisabled?'disabled':''}>
+            ${icon("gift","ic-sm")} ${borrowLabel}
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openBookDetails('${b.id}')">${icon("info","ic-sm")} جزئیات</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   Borrow / Return
+   ============================================================ */
+window.borrowBook = async (bookId) => {
+  if (!currentUser) { showToast("ابتدا وارد شوید"); return; }
+  const b = db.books.find(x => x.id === bookId);
+  if (!b) { showToast("کتاب یافت نشد"); return; }
+  if (myActiveLoans().some(l => l.bookId === bookId)) { showToast("شما این کتاب را در امانت دارید"); return; }
+  const c = b.copies.find(c => c.status === "available");
+  if (!c) { showToast("نسخه‌ای موجود نیست"); return; }
+  if (!confirm(`کتاب «${b.title}» (نسخه ${c.code}) به نام شما امانت ثبت شود؟`)) return;
+
+  const prevStatus = c.status;
+  const prevLoanId = c.loanId;
+  c.status = "loaned";
+  const loan = {
+    id: makeId(), bookId,
+    bookTitle: b.title, copyCode: c.code,
+    member: currentUser.name,
+    status: "active",
+    date: new Date().toISOString()
+  };
+  c.loanId = loan.id;
+  db.loans.push(loan);
+  try { await saveDB(); }
+  catch(err){
+    c.status = prevStatus; c.loanId = prevLoanId;
+    db.loans = db.loans.filter(l => l.id !== loan.id);
+    showToast("خطا: " + err.message); return;
+  }
+  renderAll();
+  showToast(`«${b.title}» امانت شما شد`);
+};
+
+window.returnMyLoan = async (loanId) => {
+  const loan = db.loans.find(l => l.id === loanId);
+  if (!loan || loan.status !== "active") return;
+  if (loan.member !== currentUser.name) { showToast("این امانت متعلق به شما نیست"); return; }
+  if (!confirm(`«${loan.bookTitle}» را بازگردانده‌اید؟`)) return;
+
+  const prevStatus = loan.status;
+  const prevReturnedAt = loan.returnedAt;
+  const prevReturnedBy = loan.returnedBy;
+
+  loan.status = "returned";
+  loan.returnedAt = new Date().toISOString();
+  loan.returnedBy = "member";
+
+  const b = db.books.find(x => x.id === loan.bookId);
+  let copy = null, copyPrevStatus = null, copyPrevLoanId;
+  if (b) {
+    copy = b.copies.find(c => c.loanId === loan.id);
+    if (copy) { copyPrevStatus = copy.status; copyPrevLoanId = copy.loanId; copy.status = "available"; delete copy.loanId; }
+  }
+  try { await saveDB(); }
+  catch(err){
+    loan.status = prevStatus; loan.returnedAt = prevReturnedAt; loan.returnedBy = prevReturnedBy;
+    if (copy) { copy.status = copyPrevStatus; copy.loanId = copyPrevLoanId; }
+    showToast("خطا: " + err.message); return;
+  }
+  renderAll();
+  showToast("بازگشت ثبت شد — ممنون!");
+};
+
+/* ============================================================
+   My Loans
+   ============================================================ */
+function renderMyLoans(){
+  const activeBox = document.getElementById("activeLoansBox");
+  const historyBox = document.getElementById("historyLoansBox");
+  if (!activeBox || !historyBox) return;
+  const active = myActiveLoans().reverse();
+  const history = myHistoryLoans().reverse();
+
+  if (!active.length) {
+    activeBox.innerHTML = `<p class="helper" style="margin:0;">امانت فعالی ندارید.</p>`;
+  } else {
+    activeBox.innerHTML = active.map(l => {
+      const b = db.books.find(x => x.id === l.bookId);
+      const cover = b ? bookCoverHTML(b,'thumb') : `<div class="loan-user-thumb">${icon("book","ic-lg")}</div>`;
+      return `<div class="loan-user-card">
+        ${cover}
+        <div class="loan-user-info">
+          <h4>${esc(l.bookTitle)}</h4>
+          <div class="meta">
+            <span class="code">${esc(l.copyCode||"—")}</span>
+            <span>${icon("clock","ic-sm")} ${formatDate(l.date)}</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-teal btn-sm" onclick="returnMyLoan('${l.id}')">${icon("check","ic-sm")} بازگرداندن</button>
+            ${b && b.pdfUrl ? `<button class="btn btn-ghost btn-sm" onclick="openPDFReader('${b.id}')">${icon("eye","ic-sm")} مطالعه</button>` : ``}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  if (!history.length) {
+    historyBox.innerHTML = `<p class="helper" style="margin:0;">هنوز کتابی بازنگردانده‌اید.</p>`;
+  } else {
+    historyBox.innerHTML = history.slice(0, 30).map(l => {
+      const b = db.books.find(x => x.id === l.bookId);
+      const cover = b ? bookCoverHTML(b,'thumb') : `<div class="loan-user-thumb">${icon("book","ic-lg")}</div>`;
+      const byTxt = l.returnedBy === "admin" ? "توسط کتابخانه" : "توسط خودم";
+      return `<div class="loan-user-card">
+        ${cover}
+        <div class="loan-user-info">
+          <h4>${esc(l.bookTitle)}</h4>
+          <div class="meta">
+            <span class="code">${esc(l.copyCode||"—")}</span>
+            <span>${icon("clock","ic-sm")} ${formatDate(l.date)}</span>
+          </div>
+          <div class="badge badge-green">${icon("check","ic-sm")} بازگشته — ${byTxt} (${formatDate(l.returnedAt)})</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+}
+
+/* ============================================================
+   Questions
+   ============================================================ */
+function renderMyQuestions(){
+  const el = document.getElementById("myQuestionsBox");
+  if (!el) return;
+  const mine = db.questions.filter(q => (q.asker||"") === currentUser?.name).reverse();
+  if (!mine.length) { el.innerHTML = `<p class="helper" style="margin:0;">هنوز پرسشی نپرسیده‌اید.</p>`; return; }
+  el.innerHTML = mine.map(q => {
+    const answer = q.answer
+      ? `<div class="qa-answer"><b>پاسخ ${esc(q.answeredBy||"")}:</b> ${esc(q.answer)}</div>`
+      : `<div class="qa-pending">${icon("clock","ic-sm")} در انتظار پاسخ</div>`;
+    return `<div class="qa-item">
+      <div class="qa-q">${esc(q.question)}</div>
+      <div class="qa-meta">${icon("clock","ic-sm")} ${formatDate(q.createdAt)}</div>
+      ${answer}
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("questionForm").onsubmit = async (e) => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const text = document.getElementById("questionText").value.trim();
+  if (!text) return;
+  const q = { id: makeId(), question: text, asker: currentUser.name, createdAt: new Date().toISOString() };
+  db.questions.push(q);
+  try { await saveDB(); }
+  catch(err){ db.questions = db.questions.filter(x => x.id !== q.id); showToast("خطا: " + err.message); return; }
+  e.target.reset();
+  renderMyQuestions();
+  showToast("پرسش ارسال شد");
+};
+
+/* ============================================================
+   Messages
+   ============================================================ */
+function renderMyMessages(){
+  const el = document.getElementById("myMessagesBox");
+  if (!el) return;
+  const mine = db.requests.filter(r => (r.user||"") === currentUser?.name).slice().reverse();
+  if (!mine.length) { el.innerHTML = `<p class="helper" style="margin:0;">هنوز پیامی نفرستاده‌اید.</p>`; return; }
+  el.innerHTML = mine.map(r => `
+    <div class="qa-item">
+      <div class="qa-q">
+        <span class="badge badge-purple">${icon("tag","ic-sm")} ${esc(r.type||"پیام")}</span>
+      </div>
+      <div class="qa-meta">${icon("clock","ic-sm")} ${formatDate(r.date)}</div>
+      <div style="font-size:.88rem;">${esc(r.message)}</div>
+    </div>`).join("");
+}
+
+document.getElementById("messageForm").onsubmit = async (e) => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const type = document.getElementById("messageType").value;
+  const message = document.getElementById("messageText").value.trim();
+  if (!message) return;
+  const r = { id: makeId(), type, user: currentUser.name, message, date: new Date().toISOString() };
+  db.requests.push(r);
+  try { await saveDB(); }
+  catch(err){ db.requests = db.requests.filter(x => x.id !== r.id); showToast("خطا: " + err.message); return; }
+  e.target.reset();
+  renderMyMessages();
+  showToast("پیام ارسال شد");
+};
+
+/* ============================================================
+   Profile (with avatar)
+   ============================================================ */
+function avatarInnerHTML(size="profile"){
+  if (currentUser?.avatarUrl) {
+    return `<img src="${esc(currentUser.avatarUrl)}" alt="">`;
+  }
+  const initial = (currentUser?.name || "؟").trim().charAt(0);
+  return esc(initial);
+}
+
+function renderProfile(){
+  const el = document.getElementById("profileCard");
+  if (!el || !currentUser) return;
+  const active = myActiveLoans().length;
+  const total = myLoans().length;
+  el.innerHTML = `
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar" id="profileAvatarEl">
+        ${avatarInnerHTML()}
+        <div class="avatar-edit-overlay" onclick="pickAvatar()" title="تغییر عکس">
+          ${icon("camera","ic-md")}
+        </div>
+      </div>
+      <div class="profile-avatar-actions">
+        <button class="btn btn-primary btn-sm" type="button" onclick="pickAvatar()">
+          ${icon("camera","ic-sm")} ${currentUser.avatarUrl ? "تغییر عکس" : "افزودن عکس"}
+        </button>
+        ${currentUser.avatarUrl ? `<button class="btn btn-danger btn-sm" type="button" onclick="removeAvatar()">${icon("trash","ic-sm")} حذف</button>` : ``}
+      </div>
+      <div style="text-align:center;">
+        <div style="font-weight:800;font-size:1rem;">${esc(currentUser.name)}</div>
+        <div style="color:var(--muted);font-size:.82rem;">${esc(currentUser.email||"—")}</div>
+        <div style="color:var(--muted);font-size:.8rem;">${currentUser.class ? 'کلاس: ' + esc(currentUser.class) : 'کلاس ثبت نشده'}</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">${icon("clock","ic-md")}</div><div class="stat-number">${active}</div><div class="stat-label">امانت فعال</div></div>
+      <div class="stat-card"><div class="stat-icon">${icon("check","ic-md")}</div><div class="stat-number">${total}</div><div class="stat-label">کل امانت</div></div>
+      <div class="stat-card"><div class="stat-icon">${icon("book","ic-md")}</div><div class="stat-number">${db.books.length}</div><div class="stat-label">عنوان کتاب</div></div>
+      <div class="stat-card"><div class="stat-icon">${icon("package","ic-md")}</div><div class="stat-number">${db.books.reduce((s,b)=>s+getAvailable(b).length,0)}</div><div class="stat-label">نسخه موجود</div></div>
+    </div>`;
+}
+
+/* باز کردن فایل‌سلکتور عکس */
+window.pickAvatar = () => {
+  if (!currentUser) { showToast("ابتدا وارد شوید"); return; }
+  const inp = document.getElementById("avatarFile");
+  inp.value = "";
+  inp.click();
+};
+
+/* وقتی فایل انتخاب شد */
+document.getElementById("avatarFile").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f || !currentUser) return;
+  if (!f.type.startsWith("image/")) { showToast("فایل باید عکس باشد"); return; }
+  if (f.size > 8 * 1024 * 1024) { showToast("عکس نباید بیشتر از ۸ مگابایت باشد"); return; }
+  showToast("در حال آپلود عکس...");
+  try {
+    const base64 = await resizeImage(f, 400, 0.85);
+    const filename = `avatar_${currentUser.id}_${Date.now()}.jpg`;
+    const url = await uploadAvatar(base64, filename);
+
+    const fresh = db.users.find(u => u.id === currentUser.id);
+    if (!fresh) throw new Error("حساب یافت نشد");
+    const prev = fresh.avatarUrl;
+    fresh.avatarUrl = url;
+    try { await saveDB(); }
+    catch(err){ fresh.avatarUrl = prev; throw err; }
+
+    currentUser = fresh;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+    renderProfile();
+    renderLibraryCard();
+    updateBrandAvatar();
+    showToast("عکس پروفایل بروزرسانی شد");
+  } catch (err) {
+    console.error(err);
+    showToast("خطا: " + (err.message || "نامشخص"));
+  }
+};
+
+/* حذف عکس پروفایل */
+window.removeAvatar = async () => {
+  if (!currentUser) return;
+  if (!confirm("عکس پروفایل حذف شود؟")) return;
+  const fresh = db.users.find(u => u.id === currentUser.id);
+  if (!fresh) return;
+  const prev = fresh.avatarUrl;
+  fresh.avatarUrl = "";
+  try { await saveDB(); }
+  catch(err){ fresh.avatarUrl = prev; showToast("خطا: " + err.message); return; }
+  currentUser = fresh;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+  renderProfile();
+  renderLibraryCard();
+  updateBrandAvatar();
+  showToast("عکس حذف شد");
+};
+
+/* ============================================================
+   Library card
+   ============================================================ */
+function renderLibraryCard(){
+  const el = document.getElementById("libraryCard");
+  if (!el) return;
+  if (!currentUser) { el.innerHTML = ""; return; }
+  const since = currentUser.createdAt ? formatDate(currentUser.createdAt) : "—";
+  el.innerHTML = `
+    <div class="lc-header">
+      <div class="lc-logo">${icon("book","ic-md")}</div>
+      <div class="lc-title">
+        <div class="t1">کتابخانه نسل آفتاب</div>
+        <div class="t2">کارت عضویت — Membership Card</div>
+      </div>
+    </div>
+    <div class="lc-body">
+      <div class="lc-avatar">${avatarInnerHTML()}</div>
+      <div class="lc-info">
+        <div class="lc-name">${esc(currentUser.name)}</div>
+        <div class="lc-id">${esc(memberCode(currentUser))}</div>
+        <div class="lc-class">${currentUser.class ? 'کلاس: ' + esc(currentUser.class) : 'عضو فعال'}</div>
+      </div>
+    </div>
+    <div class="lc-footer">
+      <div class="lc-since">${icon("clock","ic-sm")} از تاریخ: ${since}</div>
+      <div class="lc-barcode" aria-hidden="true"></div>
+    </div>`;
+}
+
+window.downloadLibraryCard = async () => {
+  if (!currentUser) { showToast("ابتدا وارد شوید"); return; }
+  if (typeof html2canvas === "undefined") { showToast("html2canvas بارگذاری نشد"); return; }
+  const el = document.getElementById("libraryCard");
+  if (!el) return;
+  try { await document.fonts.ready; } catch(e) {}
+  showToast("در حال ساخت تصویر...");
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 3,
+      backgroundColor: null,
+      useCORS: true,
+      logging: false,
+      allowTaint: false
+    });
+    const a = document.createElement("a");
+    const safeName = (currentUser.name || "card").replace(/[^\p{L}\p{N}]+/gu, "-");
+    a.download = `nasl-card-${safeName}.png`;
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+    showToast("کارت دانلود شد");
+  } catch(e){
+    console.error(e);
+    showToast("خطا: " + (e.message || "نامشخص"));
+  }
+};
+
+/* ============================================================
+   Change password
+   ============================================================ */
+document.getElementById("changePasswordForm").onsubmit = async (e) => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const oldPw = document.getElementById("oldPassword").value;
+  const newPw = document.getElementById("newPassword").value;
+  const newPw2 = document.getElementById("newPassword2").value;
+  if (newPw !== newPw2) { showToast("رمزهای جدید یکسان نیستند"); return; }
+  if (newPw.length < 4) { showToast("رمز جدید حداقل ۴ کاراکتر"); return; }
+
+  const fresh = db.users.find(u => u.id === currentUser.id);
+  if (!fresh) { showToast("حساب یافت نشد"); return; }
+
+  const stored = fresh.password || "";
+  const oldHash = await hashPassword(oldPw);
+  if (/^[a-f0-9]{64}$/.test(stored)) {
+    if (oldHash !== stored) { showToast("رمز فعلی اشتباه است"); return; }
+  } else {
+    if (stored !== oldPw) { showToast("رمز فعلی اشتباه است"); return; }
+  }
+  const prev = fresh.password;
+  fresh.password = await hashPassword(newPw);
+  try { await saveDB(); }
+  catch(err){ fresh.password = prev; showToast("خطا: " + err.message); return; }
+  e.target.reset();
+  currentUser = fresh;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+  showToast("رمز با موفقیت تغییر کرد");
+};
+
+/* ============================================================
+   Book details
+   ============================================================ */
+window.openBookDetails = (bookId) => {
+  const b = db.books.find(x => x.id === bookId);
+  if (!b) { showToast("کتاب پیدا نشد"); return; }
+  const available = getAvailable(b).length;
+  const total = getTotal(b);
+  const activeLoan = myActiveLoans().find(l => l.bookId === bookId);
+  const details = document.getElementById("bookDetailsContent");
+  const cover = b.image
+    ? `<img class="book-details-cover" src="${esc(b.image)}" alt="${esc(b.title)}">`
+    : `<div class="book-details-cover" style="display:grid;place-items:center;color:var(--primary);">${icon("book","ic-xl")}</div>`;
+  details.innerHTML = `
+    <h3>${icon("book","ic-md")} ${esc(b.title)}</h3>
+    <div class="book-details-layout">${cover}<div style="min-width:0;flex:1">
+      <div class="badge badge-purple">${esc(b.category || "بدون دسته‌بندی")}</div>
+      <p style="margin:9px 0 3px;font-size:.84rem;color:var(--muted)">اهدایی از</p>
+      <b>${esc(b.donor || "ثبت نشده")}</b>
+      <div style="margin-top:10px"><span class="badge ${available>0?'badge-green':'badge-red'}">${available} از ${total} نسخه موجود</span></div>
+    </div></div>
+    <div class="book-details-meta">
+      <div><b>وضعیت:</b> ${activeLoan ? "در امانت شما" : (available>0 ? "قابل امانت" : "فعلاً ناموجود")}</div>
+      <div><b>نسخه‌های کل:</b> ${total}</div>
+      <div><b>نسخه‌های موجود:</b> ${available}</div>
+      <div><b>PDF:</b> ${b.pdfUrl ? "موجود" : "ندارد"}</div>
+    </div>
+    <h4 style="margin:12px 0 6px">درباره کتاب</h4>
+    <div class="book-details-description">${esc(b.description || "توضیحی برای این کتاب ثبت نشده است.")}</div>
+    <div class="book-details-actions">
+      ${activeLoan && b.pdfUrl ? `<button class="btn btn-teal" onclick="closeBookDetails();openPDFReader('${b.id}')">${icon("eye","ic-sm")} مطالعه PDF</button>` : ""}
+      ${!activeLoan && available>0 ? `<button class="btn btn-primary" onclick="closeBookDetails();borrowBook('${b.id}')">${icon("gift","ic-sm")} امانت گرفتن</button>` : ""}
+      ${activeLoan ? `<span class="badge badge-green" style="align-self:center">این کتاب در امانت شماست</span>` : ""}
+      ${!activeLoan && available===0 ? `<span class="badge badge-red" style="align-self:center">نسخه‌ای موجود نیست</span>` : ""}
+    </div>
+    ${b.pdfUrl && !activeLoan ? `<p class="helper" style="margin:10px 0 0">فایل PDF فقط تا زمانی که کتاب در امانت شما باشد قابل مطالعه است.</p>` : ""}
+  `;
+  document.getElementById("bookDetailsModal").hidden = false;
+  injectStaticIcons();
+};
+window.closeBookDetails = () => { document.getElementById("bookDetailsModal").hidden = true; };
+
+/* ============================================================
+   PDF reader
+   ============================================================ */
+window.openPDFReader = (bookId) => {
+  const b = db.books.find(x => x.id === bookId);
+  if (!b || !b.pdfUrl) { showToast("PDF برای این کتاب موجود نیست"); return; }
+  if (!myActiveLoans().some(l => l.bookId === bookId)) { showToast("برای مطالعه PDF باید کتاب را امانت گرفته باشید"); return; }
+  document.getElementById("pdfModalTitle").innerHTML = `<span class="ic ic-md" data-icon="pdf"></span> ${esc(b.title)}`;
+  document.getElementById("pdfFrame").src = b.pdfUrl;
+  document.getElementById("pdfOpenLink").href = b.pdfUrl;
+  document.getElementById("pdfModal").hidden = false;
+  injectStaticIcons();
+};
+window.closePDFReader = () => {
+  document.getElementById("pdfModal").hidden = true;
+  document.getElementById("pdfFrame").src = "about:blank";
+};
+
+/* ============================================================
+   Theme
+   ============================================================ */
+const themeBtn = document.getElementById("themeToggle");
+function updateTheme(){ themeBtn.innerHTML = icon(document.body.classList.contains("dark") ? "sun" : "moon", "ic-md"); }
+themeBtn.onclick = () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  updateTheme();
+};
+if (localStorage.getItem("theme")==="dark") document.body.classList.add("dark");
+
+/* ============================================================
+   Auth-tab switching
+   ============================================================ */
+document.querySelectorAll(".auth-tab").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".auth-tab").forEach(b => b.classList.toggle("active", b === btn));
+    document.querySelectorAll(".auth-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${btn.dataset.tab}`));
+  };
+});
+
+/* ============================================================
+   Login / Register
+   ============================================================ */
+document.getElementById("loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const identifier = document.getElementById("loginIdentifier").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const res = await loginReader(identifier, password);
+  if (!res.success) { showToast(res.message); return; }
+  currentUser = res.user;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+  applyUser();
+  goTo("home");
+  renderAll();
+  showToast(`خوش آمدید ${currentUser.name}`);
+};
+
+document.getElementById("registerForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("regName").value;
+  const email = document.getElementById("regEmail").value;
+  const className = document.getElementById("regClass").value;
+  const pw = document.getElementById("regPassword").value;
+  const pw2 = document.getElementById("regPassword2").value;
+  if (pw !== pw2) { showToast("رمزها یکسان نیستند"); return; }
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = "در حال ساخت...";
+  try {
+    const res = await registerReader(name, email, className, pw);
+    if (!res.success) { showToast(res.message); return; }
+    currentUser = res.user;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+    applyUser();
+    goTo("home");
+    renderAll();
+    showToast(`حساب ساخته شد — خوش آمدید ${currentUser.name}`);
+  } finally {
+    btn.disabled = false; btn.textContent = "ساخت حساب";
+  }
+};
+
+document.getElementById("loginToggle").onclick = () => goTo("login");
+document.getElementById("logoutBtn").onclick = () => {
+  currentUser = null;
+  sessionStorage.removeItem(SESSION_KEY);
+  applyUser();
+  goTo("login");
+  showToast("خارج شدید");
+};
+
+function applyUser(){
+  const logged = !!currentUser;
+  document.getElementById("loginToggle").style.display = logged ? "none" : "grid";
+  document.getElementById("logoutBtn").style.display = logged ? "grid" : "none";
+  document.getElementById("userGreeting").textContent = logged ? currentUser.name : "وارد نشده";
+
+  if (logged) { buildSidebar(); buildBottomNav(); }
+  else { document.getElementById("appSidebar").innerHTML = ""; document.getElementById("bottomNav").innerHTML = ""; }
+
+  updateHomeSubtitle();
+  applyUserPageSettings();
+  updateNavActive();
+  renderLibraryCard();
+  updateBrandAvatar();
+  renderProfile();
+}
+
+/* ============================================================
+   Init
+   ============================================================ */
+(async function init(){
+  document.getElementById("loginToggle").innerHTML = icon("login","ic-md");
+  document.getElementById("logoutBtn").innerHTML = icon("logout","ic-md");
+  updateTheme();
+  injectStaticIcons();
+
+  const cs = document.getElementById("connStatus");
+  cs.textContent = "در حال اتصال به سرور...";
+  try {
+    await loadDB();
+    cs.innerHTML = `متصل — ${db.books.length} عنوان کتاب`;
+  } catch(e){
+    cs.innerHTML = `خطا در اتصال: ${esc(e.message)}`;
+  }
+
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved) {
+    try {
+      const u = JSON.parse(saved);
+      const fresh = db.users.find(x => x.id === u.id);
+      if (fresh && fresh.role === "reader" && !fresh.blocked) {
+        currentUser = fresh;
+        applyUser();
+        goTo("home");
+      } else { applyUser(); goTo("login"); }
+    } catch(e){ applyUser(); goTo("login"); }
+  } else {
+    applyUser();
+    goTo("login");
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
